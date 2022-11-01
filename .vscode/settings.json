@@ -1,0 +1,30 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "database": "ambassador",
+            "username": "root",
+            "name": "AmbassadorSqlConnection",
+            "password": "root"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 33066,
+            "driver": "MySQL",
+            "name": "ambassador_connection",
+            "database": "ambassador",
+            "username": "root",
+            "password": "root"
+        }
+    ]
+}
