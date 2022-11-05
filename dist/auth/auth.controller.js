@@ -30,6 +30,7 @@ const register_dto_1 = require("./dtos/register.dto");
 const bcrypt = require("bcryptjs");
 const login_dto_1 = require("./dtos/login.dto");
 const jwt_1 = require("@nestjs/jwt");
+const auth_guard_1 = require("./auth.guard");
 let AuthController = class AuthController {
     constructor(userService, jwtService) {
         this.userService = userService;
@@ -61,6 +62,33 @@ let AuthController = class AuthController {
         const user = await this.userService.findOneById(id);
         return user;
     }
+    async logout(response) {
+        response.clearCookie('jwt');
+        return {
+            message: 'success'
+        };
+    }
+    async updateInfo(request, first_name, last_name, email) {
+        const cookie = request.cookies['jwt'];
+        const { id } = await this.jwtService.verifyAsync(cookie);
+        await this.userService.update(id, {
+            first_name,
+            last_name,
+            email
+        });
+        return this.userService.findOneById(id);
+    }
+    async updatePassword(request, password, password_confirm) {
+        if (password !== password_confirm) {
+            throw new common_1.BadRequestException("Passwords do not match!");
+        }
+        const cookie = request.cookies['jwt'];
+        const { id } = await this.jwtService.verifyAsync(cookie);
+        await this.userService.update(id, {
+            password: await bcrypt.hash(password, 12)
+        });
+        return this.userService.findOneById(id);
+    }
 };
 __decorate([
     (0, common_1.Post)('/admin/register'),
@@ -78,15 +106,45 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
-    (0, common_1.UseInterceptors)(common_1.ClassSerializerInterceptor),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     (0, common_1.Get)('/admin/user'),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "user", null);
+__decorate([
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    (0, common_1.Post)('/admin/logout'),
+    __param(0, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "logout", null);
+__decorate([
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    (0, common_1.Put)('admin/users/info'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)('first_name')),
+    __param(2, (0, common_1.Body)('last_name')),
+    __param(3, (0, common_1.Body)('email')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String, String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "updateInfo", null);
+__decorate([
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    (0, common_1.Put)('admin/users/password'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)('password')),
+    __param(2, (0, common_1.Body)('password_confirm')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "updatePassword", null);
 AuthController = __decorate([
     (0, common_1.Controller)(),
+    (0, common_1.UseInterceptors)(common_1.ClassSerializerInterceptor),
     __metadata("design:paramtypes", [user_service_1.UserService,
         jwt_1.JwtService])
 ], AuthController);

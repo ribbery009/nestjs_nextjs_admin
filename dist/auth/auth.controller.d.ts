@@ -1,4 +1,4 @@
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -11,5 +11,10 @@ export declare class AuthController {
     login(body: LoginDto, response: Response): Promise<{
         message: string;
     }>;
-    user(request: Request): Promise<import("../user/user").User>;
+    user(request: Request): Promise<any>;
+    logout(response: Response): Promise<{
+        message: string;
+    }>;
+    updateInfo(request: Request, first_name: string, last_name: string, email: string): Promise<any>;
+    updatePassword(request: Request, password: string, password_confirm: string): Promise<any>;
 }

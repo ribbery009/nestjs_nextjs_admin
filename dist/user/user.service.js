@@ -15,24 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
+const abstract_service_1 = require("../shared/abstract.service");
 const typeorm_2 = require("typeorm");
 const user_1 = require("./user");
-let UserService = class UserService {
+let UserService = class UserService extends abstract_service_1.AbstractService {
     constructor(userRepository) {
+        super(userRepository);
         this.userRepository = userRepository;
-    }
-    async save(options) {
-        return this.userRepository.save(options);
-    }
-    async findOneByEmail(options) {
-        return this.userRepository.findOne({
-            where: { email: options }
-        });
-    }
-    async findOneById(options) {
-        return this.userRepository.findOne({
-            where: { id: options }
-        });
     }
 };
 UserService = __decorate([
