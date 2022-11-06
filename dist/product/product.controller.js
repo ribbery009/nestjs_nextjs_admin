@@ -21,7 +21,7 @@ let ProductController = class ProductController {
         this.productService = productService;
     }
     async all() {
-        return this.productService.find({});
+        return this.productService.find();
     }
     async create(body) {
         return this.productService.save(body);

@@ -8,10 +8,8 @@ class AbstractService {
     async save(options) {
         return this.repository.save(options);
     }
-    async find(options) {
-        return this.repository.find({
-            where: options
-        });
+    async find(options = {}) {
+        return this.repository.find(options);
     }
     async findOneByEmail(options) {
         return this.repository.findOne({
