@@ -1,5 +1,6 @@
 import { Exclude } from "class-transformer";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {Order} from "../order/order";
 
 @Entity('users')
 export class User{
@@ -21,4 +22,17 @@ export class User{
 
     @Column({default: true})
     is_ambassador: boolean;
+
+    @OneToMany(() => Order, order => order.user, {
+        createForeignKeyConstraints: false
+    })
+    orders: Order[];
+
+    get revenue(): number {
+        return this.orders.filter(o => o.complete).reduce((s, o) => s + o.ambassador_revenue, 0)
+    }
+
+    get name() {
+        return `${this.first_name} ${this.last_name}`;
+    }
 }

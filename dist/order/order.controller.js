@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderController = void 0;
 const common_1 = require("@nestjs/common");
+const auth_guard_1 = require("../auth/auth.guard");
 const order_service_1 = require("./order.service");
 let OrderController = class OrderController {
     constructor(orderService) {
@@ -23,6 +24,7 @@ let OrderController = class OrderController {
     }
 };
 __decorate([
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     (0, common_1.UseInterceptors)(common_1.ClassSerializerInterceptor),
     (0, common_1.Get)('admin/orders'),
     __metadata("design:type", Function),

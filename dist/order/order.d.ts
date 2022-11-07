@@ -1,4 +1,6 @@
+import { Link } from "../link/link";
 import { OrderItem } from "./order-item";
+import { User } from "../user/user";
 export declare class Order {
     id: number;
     transaction_id: string;
@@ -14,6 +16,9 @@ export declare class Order {
     zip: string;
     complete: boolean;
     order_items: OrderItem[];
+    link: Link;
+    user: User;
     get name(): string;
     get total(): number;
+    get ambassador_revenue(): number;
 }

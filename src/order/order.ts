@@ -1,14 +1,15 @@
 import { Exclude, Expose } from "class-transformer";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Link } from "../link/link";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { OrderItem } from "./order-item";
+import { User } from "../user/user";
 
 @Entity('orders')
 export class Order {
-
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ nullable: true })
+    @Column({nullable: true})
     transaction_id: string;
 
     @Column()
@@ -31,32 +32,53 @@ export class Order {
     @Column()
     email: string;
 
-    @Column({ nullable: true })
+    @Column({nullable: true})
     address: string;
 
-    @Column({ nullable: true })
+    @Column({nullable: true})
     country: string;
 
-    @Column({ nullable: true })
+    @Column({nullable: true})
     city: string;
 
-    @Column({ nullable: true })
+    @Column({nullable: true})
     zip: string;
 
     @Exclude()
-    @Column({ default: false })
+    @Column({default: false})
     complete: boolean;
 
     @OneToMany(() => OrderItem, orderItem => orderItem.order)
     order_items: OrderItem[];
 
+    @ManyToOne(() => Link, link => link.orders, {
+        createForeignKeyConstraints: false
+    })
+    @JoinColumn({
+        referencedColumnName: 'code',
+        name: 'code'
+    })
+    link: Link;
+
+    @ManyToOne(() => User, user => user.orders, {
+        createForeignKeyConstraints: false
+    })
+    @JoinColumn({
+        name: 'user_id'
+    })
+    user: User;
+    
     @Expose()
     get name() {
-        return `${this.first_name} ${this.last_name}`
+        return `${this.first_name} ${this.last_name}`;
     }
 
     @Expose()
-    get total() {
+    get total(): number {
         return this.order_items.reduce((s, i) => s + i.admin_revenue, 0)
+    }
+
+    get ambassador_revenue(): number {
+        return this.order_items.reduce((s, i) => s + i.ambassador_revenue, 0)
     }
 }
