@@ -16,6 +16,12 @@ class AbstractService {
             where: { email: options }
         });
     }
+    async findOneByIDAndRelations(options, relations) {
+        return this.repository.findOne({
+            where: { id: options },
+            relations: relations
+        });
+    }
     async findOneById(options) {
         return this.repository.findOne({
             where: { id: options }
@@ -26,6 +32,9 @@ class AbstractService {
     }
     async delete(id) {
         return this.repository.delete(id);
+    }
+    async findOne(options) {
+        return this.repository.findOne(options);
     }
 }
 exports.AbstractService = AbstractService;

@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SharedModule = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
+const redisStore = require("cache-manager-redis-store");
 let SharedModule = class SharedModule {
 };
 SharedModule = __decorate([
@@ -18,9 +19,16 @@ SharedModule = __decorate([
                 secret: 'secret',
                 signOptions: { expiresIn: '1d' }
             }),
+            common_1.CacheModule.register({
+                isGlobal: true,
+                store: redisStore,
+                host: 'redis',
+                port: 6379,
+            })
         ],
         exports: [
             jwt_1.JwtModule,
+            common_1.CacheModule
         ]
     })
 ], SharedModule);

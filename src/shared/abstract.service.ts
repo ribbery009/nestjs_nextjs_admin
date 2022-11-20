@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
 
-export abstract class AbstractService{
+export abstract class AbstractService {
 
     protected constructor(
         protected readonly repository: Repository<any>
@@ -23,6 +23,14 @@ export abstract class AbstractService{
         });
     }
 
+    async findOneByIDAndRelations(options, relations) {
+        return this.repository.findOne({
+            where:
+                { id: options },
+            relations: relations
+        });
+    }
+
     async findOneById(options) {
         return this.repository.findOne({
             where:
@@ -34,7 +42,11 @@ export abstract class AbstractService{
         return this.repository.update(id, options);
     }
 
-    async delete(id: number){
+    async delete(id: number) {
         return this.repository.delete(id);
+    }
+
+    async findOne(options) {
+        return this.repository.findOne(options);
     }
 }

@@ -44,7 +44,7 @@ let AuthController = class AuthController {
         const hashed = await bcrypt.hash(body.password, 12);
         return this.userService.save(Object.assign(Object.assign({}, data), { password: hashed, is_ambassador: request.path === '/api/ambassador/register' }));
     }
-    async login(body, response) {
+    async login(body, response, request) {
         const user = await this.userService.findOneByEmail(body.email);
         if (!user) {
             throw new common_1.NotFoundException("User not found");
@@ -52,15 +52,26 @@ let AuthController = class AuthController {
         if (!await bcrypt.compare(body.password, user.password)) {
             throw new common_1.BadRequestException('Invalid credentials');
         }
-        const jwt = await this.jwtService.signAsync({ id: user.id });
+        const adminLogin = request.path === '/api/admin/login';
+        if (user.is_ambassador && adminLogin) {
+            throw new common_1.UnauthorizedException();
+        }
+        const jwt = await this.jwtService.signAsync({
+            id: user.id,
+            scope: adminLogin ? 'admin' : 'ambassador'
+        });
         response.cookie('jwt', jwt, { httpOnly: true });
         return { message: 'success' };
     }
     async user(request) {
         const cookie = request.cookies['jwt'];
         const { id } = await this.jwtService.verifyAsync(cookie);
-        const user = await this.userService.findOneById(id);
-        return user;
+        if (request.path === 'api/admin/user') {
+            return this.userService.findOneById(id);
+        }
+        const user = await this.userService.findOneByIDAndRelations(id, ['orders', 'orders.order_items']);
+        const { orders, password } = user, data = __rest(user, ["orders", "password"]);
+        return Object.assign(Object.assign({}, data), { revenue: user.revenue });
     }
     async logout(response) {
         response.clearCookie('jwt');
@@ -102,8 +113,9 @@ __decorate([
     (0, common_1.Post)(['admin/login', 'ambassador/login']),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Res)({ passthrough: true })),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [login_dto_1.LoginDto, Object]),
+    __metadata("design:paramtypes", [login_dto_1.LoginDto, Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([

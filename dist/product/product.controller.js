@@ -18,8 +18,9 @@ const auth_guard_1 = require("../auth/auth.guard");
 const product_create_dto_1 = require("./dtos/product-create.dto");
 const product_service_1 = require("./product.service");
 let ProductController = class ProductController {
-    constructor(productService) {
+    constructor(productService, cacheManager) {
         this.productService = productService;
+        this.cacheManager = cacheManager;
     }
     async all() {
         return this.productService.find();
@@ -36,6 +37,20 @@ let ProductController = class ProductController {
     }
     async delete(id) {
         return this.productService.delete(id);
+    }
+    async frontend() {
+        return this.productService.find();
+    }
+    async backend() {
+        let products = await this.cacheManager.get('products_backend');
+        if (!products) {
+            products = await this.productService.find();
+            await this.cacheManager.set('products_backend', products);
+            const cachedData = await this.cacheManager.get('products_backend');
+            console.log('data set to cache', cachedData);
+            await this.cacheManager.set('products_backend', products, 1800);
+        }
+        return products;
     }
 };
 __decorate([
@@ -78,9 +93,25 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], ProductController.prototype, "delete", null);
+__decorate([
+    (0, common_1.UseInterceptors)(common_1.CacheInterceptor),
+    (0, common_1.CacheKey)('products_frontend'),
+    (0, common_1.CacheTTL)(1800),
+    (0, common_1.Get)('ambassador/products/frontend'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ProductController.prototype, "frontend", null);
+__decorate([
+    (0, common_1.Get)('ambassador/products/backend'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ProductController.prototype, "backend", null);
 ProductController = __decorate([
     (0, common_1.Controller)(),
-    __metadata("design:paramtypes", [product_service_1.ProductService])
+    __param(1, (0, common_1.Inject)(common_1.CACHE_MANAGER)),
+    __metadata("design:paramtypes", [product_service_1.ProductService, Object])
 ], ProductController);
 exports.ProductController = ProductController;
 //# sourceMappingURL=product.controller.js.map

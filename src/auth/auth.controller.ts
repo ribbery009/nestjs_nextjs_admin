@@ -1,4 +1,4 @@
-import { Controller, Body, Post, BadRequestException, NotFoundException, Res, Get, Req, UseInterceptors, ClassSerializerInterceptor, UseGuards, Put } from '@nestjs/common';
+import { Controller, Body, Post, BadRequestException, NotFoundException, Res, Get, Req, UseInterceptors, ClassSerializerInterceptor, UseGuards, Put, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { RegisterDto } from './dtos/register.dto';
 import * as bcrypt from 'bcryptjs'
@@ -6,6 +6,7 @@ import { LoginDto } from './dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Response, Request } from 'express';
 import { AuthGuard } from './auth.guard';
+import { isErrored } from 'stream';
 
 @Controller()
 @UseInterceptors(ClassSerializerInterceptor)
@@ -31,17 +32,22 @@ export class AuthController {
         }
 
         const hashed = await bcrypt.hash(body.password, 12);
-        
+
         return this.userService.save({
             ...data,
             password: hashed,
-            is_ambassador: request.path === '/api/ambassador/register'        });
+            is_ambassador: request.path === '/api/ambassador/register'
+        });
     }
 
     @Post(['admin/login', 'ambassador/login'])
-    async login(@Body() body: LoginDto, @Res({ passthrough: true }) response: Response) {
+    async login(
+        @Body() body: LoginDto,
+        @Res({ passthrough: true }) response: Response,
+        @Req() request: Request) {
         const user = await this.userService.findOneByEmail(body.email);
 
+      
         if (!user) {
             throw new NotFoundException("User not found")
         }
@@ -50,7 +56,16 @@ export class AuthController {
             throw new BadRequestException('Invalid credentials')
         }
 
-        const jwt = await this.jwtService.signAsync({ id: user.id });
+        const adminLogin = request.path === '/api/admin/login'
+
+        if (user.is_ambassador && adminLogin) {
+            throw new UnauthorizedException();
+        }
+
+        const jwt = await this.jwtService.signAsync({
+            id: user.id,
+            scope: adminLogin ? 'admin' : 'ambassador'
+        });
         response.cookie('jwt', jwt, { httpOnly: true });
 
         return { message: 'success' };
@@ -60,11 +75,25 @@ export class AuthController {
     @Get(['admin/user', 'ambassador/user'])
     async user(@Req() request: Request) {
         const cookie = request.cookies['jwt'];
-
+        
         const { id } = await this.jwtService.verifyAsync(cookie);
 
-        const user = await this.userService.findOneById(id)
-        return user;
+        if (request.path === 'api/admin/user') {
+            return this.userService.findOneById(id)
+        }
+
+        const user = await this.userService.findOneByIDAndRelations(
+            id,
+            ['orders', 'orders.order_items']
+        )
+
+        const {orders, password, ...data} = user;
+
+        return {
+            ...data,
+            revenue: user.revenue
+        }
+
     }
 
     @UseGuards(AuthGuard)
@@ -117,7 +146,7 @@ export class AuthController {
         const { id } = await this.jwtService.verifyAsync(cookie);
 
         await this.userService.update(id, {
-            password: await bcrypt.hash(password,12)
+            password: await bcrypt.hash(password, 12)
         })
 
         return this.userService.findOneById(id);
