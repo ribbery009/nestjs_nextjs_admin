@@ -10,6 +10,7 @@ exports.ProductModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const shared_module_1 = require("../shared/shared.module");
+const product_listener_1 = require("./listeners/product.listener");
 const product_1 = require("./product");
 const product_controller_1 = require("./product.controller");
 const product_service_1 = require("./product.service");
@@ -22,7 +23,7 @@ ProductModule = __decorate([
             shared_module_1.SharedModule
         ],
         controllers: [product_controller_1.ProductController],
-        providers: [product_service_1.ProductService],
+        providers: [product_service_1.ProductService, product_listener_1.ProductListener],
         exports: [product_service_1.ProductService]
     })
 ], ProductModule);

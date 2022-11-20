@@ -17,6 +17,7 @@ const product_module_1 = require("./product/product.module");
 const order_module_1 = require("./order/order.module");
 const link_module_1 = require("./link/link.module");
 const shared_module_1 = require("./shared/shared.module");
+const event_emitter_1 = require("@nestjs/event-emitter");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -32,6 +33,7 @@ AppModule = __decorate([
                 autoLoadEntities: true,
                 synchronize: true,
             }),
+            event_emitter_1.EventEmitterModule.forRoot(),
             user_module_1.UserModule,
             auth_module_1.AuthModule,
             product_module_1.ProductModule,
