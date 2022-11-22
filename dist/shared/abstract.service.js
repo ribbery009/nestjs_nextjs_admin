@@ -11,6 +11,9 @@ class AbstractService {
     async find(options = {}) {
         return this.repository.find(options);
     }
+    async findByRelation(relation) {
+        return this.repository.find({ relations: relation });
+    }
     async findOneByEmail(options) {
         return this.repository.findOne({
             where: { email: options }
@@ -19,6 +22,12 @@ class AbstractService {
     async findOneByIDAndRelations(options, relations) {
         return this.repository.findOne({
             where: { id: options },
+            relations: relations
+        });
+    }
+    async findOneByUserAndRelations(options, relations) {
+        return this.repository.findOne({
+            where: { user: options },
             relations: relations
         });
     }

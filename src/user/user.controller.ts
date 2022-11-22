@@ -2,6 +2,7 @@ import { ClassSerializerInterceptor, Controller, Get, UseGuards, UseInterceptors
 import { AuthGuard } from '../auth/auth.guard';
 import { UserService } from './user.service';
 
+@UseGuards(AuthGuard)
 @Controller()
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {

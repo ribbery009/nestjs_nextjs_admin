@@ -67,7 +67,7 @@ export class Order {
         name: 'user_id'
     })
     user: User;
-    
+
     @Expose()
     get name() {
         return `${this.first_name} ${this.last_name}`;

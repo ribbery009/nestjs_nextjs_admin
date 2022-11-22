@@ -16,6 +16,10 @@ export abstract class AbstractService {
         return this.repository.find(options);
     }
 
+    async findByRelation(relation) {
+        return this.repository.find({relations:relation});
+    }
+
     async findOneByEmail(options) {
         return this.repository.findOne({
             where:
@@ -27,6 +31,14 @@ export abstract class AbstractService {
         return this.repository.findOne({
             where:
                 { id: options },
+            relations: relations
+        });
+    }
+
+    async findOneByUserAndRelations(options, relations) {
+        return this.repository.findOne({
+            where:
+                { user: options },
             relations: relations
         });
     }

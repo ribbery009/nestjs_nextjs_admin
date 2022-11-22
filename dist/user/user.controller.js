@@ -31,6 +31,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "ambassadors", null);
 UserController = __decorate([
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     (0, common_1.Controller)(),
     (0, common_1.UseInterceptors)(common_1.ClassSerializerInterceptor),
     __metadata("design:paramtypes", [user_service_1.UserService])

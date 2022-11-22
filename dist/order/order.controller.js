@@ -18,7 +18,7 @@ let OrderController = class OrderController {
         this.orderService = orderService;
     }
     all() {
-        return this.orderService.find({
+        return this.orderService.findByRelation({
             relations: ['order_items']
         });
     }

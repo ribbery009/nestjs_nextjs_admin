@@ -15,7 +15,7 @@ export class OrderController {
     @UseInterceptors(ClassSerializerInterceptor)
     @Get('admin/orders')
     all() {
-        return this.orderService.find({
+        return this.orderService.findByRelation({
             relations:['order_items']
         })
     }
