@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SharedModule } from 'src/shared/shared.module';
+import { SharedModule } from '../shared/shared.module';
 import { ProductListener } from './listeners/product.listener';
 import { Product } from './product';
 import { ProductController } from './product.controller';
